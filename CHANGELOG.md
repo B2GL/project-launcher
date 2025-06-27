@@ -1,6 +1,13 @@
 # Change Log
 
-All notable changes to the "Project Launcher" extension will be documented in this file.
+All notable changes to the "Multi Project Launcher" extension will be documented in this file.
+
+## [1.0.1] - 2025-06-27
+
+### Fixed
+- VSCode engine compatibility issue (now supports VSCode 1.74.0+)
+- Fixed view ID references for proper extension activation
+- Updated all "Project Launcher" references to "Multi Project Launcher"
 
 ## [1.0.0] - 2025-06-27
 

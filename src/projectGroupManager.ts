@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { ProjectGroup } from './types';
 
 export class ProjectGroupManager {
-    private static readonly STORAGE_KEY = 'projectLauncher.groups';
+    private static readonly STORAGE_KEY = 'multiProjectLauncher.groups';
     private groups: ProjectGroup[] = [];
 
     constructor(private context: vscode.ExtensionContext) {

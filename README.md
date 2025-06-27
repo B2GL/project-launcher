@@ -1,4 +1,4 @@
-# Project Launcher
+# Multi Project Launcher
 
 A powerful VS Code extension that helps you organize and launch multiple project folders as groups. Perfect for developers working with microservices, monorepos, or multiple related projects.
 
@@ -15,7 +15,7 @@ A powerful VS Code extension that helps you organize and launch multiple project
 
 ### Creating a Group
 
-1. Click the Project Launcher icon in the Activity Bar
+1. Click the Multi Project Launcher icon in the Activity Bar
 2. Click the "+" button in the view toolbar
 3. Enter a name for your group
 
@@ -39,8 +39,8 @@ A powerful VS Code extension that helps you organize and launch multiple project
 **Using Command Palette:**
 - Press `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows/Linux)
 - Search for:
-  - "Project Launcher: Open Project Group" - Select and open a group
-  - "Project Launcher: Open Project" - Select and open individual projects
+  - "Multi Project Launcher: Open Project Group" - Select and open a group
+  - "Multi Project Launcher: Open Project" - Select and open individual projects
 
 ### Managing Projects
 
@@ -65,7 +65,7 @@ Please report issues on our [GitHub repository](https://github.com/your-username
 
 ### 1.0.0
 
-Initial release of Project Launcher:
+Initial release of Multi Project Launcher:
 - Create and manage project groups
 - Add/remove projects from groups
 - Open projects individually or as groups

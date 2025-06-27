@@ -4,12 +4,12 @@ import { ProjectGroup, ProjectItem } from './types';
 import { ProjectGroupManager } from './projectGroupManager';
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Project Launcher extension is now active!');
+    console.log('Multi Project Launcher extension is now active!');
     
     const projectGroupManager = new ProjectGroupManager(context);
     const projectGroupProvider = new ProjectGroupProvider(projectGroupManager);
 
-    const treeView = vscode.window.createTreeView('projectLauncher', {
+    const treeView = vscode.window.createTreeView('multiProjectLauncher', {
         treeDataProvider: projectGroupProvider,
         canSelectMany: false
     });
