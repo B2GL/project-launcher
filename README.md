@@ -44,6 +44,11 @@ A powerful VS Code extension that helps you organize and launch multiple project
 
 ### Managing Projects
 
+- **Enable/Disable Projects**: Click the checkbox icon or right-click → "Toggle Project Enabled/Disabled"
+  - Enabled projects show with a green checkmark (✅)
+  - Disabled projects show with an empty circle (○) and "disabled" label
+  - Only enabled projects open when launching a group
+  - Group headers show enabled count (e.g., "Frontend (2/3)" means 2 of 3 projects are enabled)
 - **Remove Project**: Click the "×" icon next to a project or right-click → "Remove Project"
 - **Delete Group**: Right-click on a group → "Delete Group"
 - **Refresh View**: Click the refresh icon in the view toolbar
@@ -62,6 +67,13 @@ This extension stores your project groups in VS Code's global state, so they per
 Please report issues on our [GitHub repository](https://github.com/your-username/project-launcher/issues).
 
 ## Release Notes
+
+### 1.1.0
+
+- Added project enable/disable toggle functionality
+- Visual indicators for project states with checkbox-style icons
+- Selective project opening - only enabled projects launch with group
+- Improved type safety and code quality
 
 ### 1.0.0
 

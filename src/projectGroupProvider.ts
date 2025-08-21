@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { ProjectGroup, ProjectItem } from './types';
+import { ProjectGroup, ProjectItem, Project } from './types';
 import { ProjectGroupManager } from './projectGroupManager';
 
 export class ProjectGroupProvider implements vscode.TreeDataProvider<ProjectGroup | ProjectItem> {
@@ -16,16 +16,35 @@ export class ProjectGroupProvider implements vscode.TreeDataProvider<ProjectGrou
     getTreeItem(element: ProjectGroup | ProjectItem): vscode.TreeItem {
         if ('projects' in element) {
             // It's a ProjectGroup
-            const item = new vscode.TreeItem(element.name, vscode.TreeItemCollapsibleState.Expanded);
+            const enabledCount = element.projects.filter(p => 
+                typeof p === 'string' ? true : p.enabled
+            ).length;
+            const totalCount = element.projects.length;
+            const item = new vscode.TreeItem(
+                `${element.name} (${enabledCount}/${totalCount})`, 
+                vscode.TreeItemCollapsibleState.Expanded
+            );
             item.contextValue = 'projectGroup';
             item.iconPath = new vscode.ThemeIcon('folder-library');
             return item;
         } else {
             // It's a ProjectItem
             const item = new vscode.TreeItem(element.name, vscode.TreeItemCollapsibleState.None);
-            item.contextValue = 'projectItem';
-            item.tooltip = element.path;
-            item.iconPath = new vscode.ThemeIcon('folder');
+            item.contextValue = element.enabled ? 'projectItem' : 'projectItemDisabled';
+            item.tooltip = `${element.path}${!element.enabled ? ' (disabled)' : ''}`;
+            
+            // Use checkbox-style icons for clear enabled/disabled state
+            if (element.enabled) {
+                item.iconPath = new vscode.ThemeIcon('pass-filled', new vscode.ThemeColor('charts.green'));
+            } else {
+                item.iconPath = new vscode.ThemeIcon('circle-large-outline', new vscode.ThemeColor('disabledForeground'));
+            }
+            
+            // Add visual indicator for disabled items
+            if (!element.enabled) {
+                item.description = '○ disabled';
+            }
+            
             return item;
         }
     }
@@ -36,11 +55,16 @@ export class ProjectGroupProvider implements vscode.TreeDataProvider<ProjectGrou
             return Promise.resolve(this.projectGroupManager.getGroups());
         } else if ('projects' in element) {
             // It's a ProjectGroup - return its projects
-            const projectItems: ProjectItem[] = element.projects.map(projectPath => ({
-                groupId: element.id,
-                path: projectPath,
-                name: path.basename(projectPath)
-            }));
+            const projectItems: ProjectItem[] = element.projects.map(project => {
+                const projectPath = typeof project === 'string' ? project : project.path;
+                const enabled = typeof project === 'string' ? true : project.enabled;
+                return {
+                    groupId: element.id,
+                    path: projectPath,
+                    name: path.basename(projectPath),
+                    enabled: enabled
+                };
+            });
             return Promise.resolve(projectItems);
         } else {
             // It's a ProjectItem - no children

@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { ProjectGroupProvider } from './projectGroupProvider';
-import { ProjectGroup, ProjectItem } from './types';
+import { ProjectGroup, ProjectItem, Project } from './types';
 import { ProjectGroupManager } from './projectGroupManager';
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Multi Project Launcher extension is now active!');
     
     const projectGroupManager = new ProjectGroupManager(context);
     const projectGroupProvider = new ProjectGroupProvider(projectGroupManager);
@@ -69,17 +69,32 @@ export function activate(context: vscode.ExtensionContext) {
         }),
 
         vscode.commands.registerCommand('projectLauncher.openGroupKeepWindows', async (group: ProjectGroup) => {
-            for (const projectPath of group.projects) {
-                await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(projectPath), true);
+            for (const project of group.projects) {
+                const projectPath = typeof project === 'string' ? project : project.path;
+                const enabled = typeof project === 'string' ? true : project.enabled;
+                if (enabled) {
+                    await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(projectPath), true);
+                }
             }
         }),
 
         vscode.commands.registerCommand('projectLauncher.openGroupCloseWindows', async (group: ProjectGroup) => {
-            if (group.projects.length > 0) {
-                await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(group.projects[0]), false);
+            const enabledProjects = group.projects.filter(p => 
+                typeof p === 'string' ? true : p.enabled
+            );
+            
+            if (enabledProjects.length > 0) {
+                const firstProjectPath = typeof enabledProjects[0] === 'string' 
+                    ? enabledProjects[0] 
+                    : enabledProjects[0].path;
+                await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(firstProjectPath), false);
                 
-                for (let i = 1; i < group.projects.length; i++) {
-                    await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(group.projects[i]), true);
+                for (let i = 1; i < enabledProjects.length; i++) {
+                    const project = enabledProjects[i];
+                    const projectPath = typeof project === 'string' 
+                        ? project 
+                        : project.path;
+                    await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(projectPath), true);
                 }
             }
         }),
@@ -97,11 +112,17 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            const quickPickItems = groups.map(group => ({
-                label: group.name,
-                description: `${group.projects.length} project(s)`,
-                group: group
-            }));
+            const quickPickItems = groups.map(group => {
+                const enabledCount = group.projects.filter(p => 
+                    typeof p === 'string' ? true : p.enabled
+                ).length;
+                const totalCount = group.projects.length;
+                return {
+                    label: group.name,
+                    description: `${enabledCount}/${totalCount} project(s) enabled`,
+                    group: group
+                };
+            });
 
             const selected = await vscode.window.showQuickPick(quickPickItems, {
                 placeHolder: 'Select a project group to open',
@@ -138,12 +159,18 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            const quickPickItems: any[] = [];
+            interface ProjectQuickPickItem extends vscode.QuickPickItem {
+                projectPath: string;
+            }
+            
+            const quickPickItems: ProjectQuickPickItem[] = [];
             groups.forEach(group => {
-                group.projects.forEach(projectPath => {
-                    const projectName = projectPath.split('/').pop() || projectPath;
+                group.projects.forEach(project => {
+                    const projectPath = typeof project === 'string' ? project : project.path;
+                    const enabled = typeof project === 'string' ? true : project.enabled;
+                    const projectName = path.basename(projectPath);
                     quickPickItems.push({
-                        label: projectName,
+                        label: `${projectName}${!enabled ? ' (disabled)' : ''}`,
                         description: projectPath,
                         detail: `Group: ${group.name}`,
                         projectPath: projectPath
@@ -180,6 +207,12 @@ export function activate(context: vscode.ExtensionContext) {
                     );
                 }
             }
+        }),
+
+        // Toggle project enabled/disabled
+        vscode.commands.registerCommand('projectLauncher.toggleProjectEnabled', async (item: ProjectItem) => {
+            projectGroupManager.toggleProjectEnabled(item.groupId, item.path);
+            projectGroupProvider.refresh();
         }),
 
         treeView

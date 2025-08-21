@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ProjectGroup } from './types';
+import { ProjectGroup, Project } from './types';
 
 export class ProjectGroupManager {
     private static readonly STORAGE_KEY = 'multiProjectLauncher.groups';
@@ -10,7 +10,16 @@ export class ProjectGroupManager {
     }
 
     private loadGroups(): void {
-        this.groups = this.context.globalState.get<ProjectGroup[]>(ProjectGroupManager.STORAGE_KEY, []);
+        const storedGroups = this.context.globalState.get<ProjectGroup[]>(ProjectGroupManager.STORAGE_KEY, []);
+        // Migrate old string[] format to Project[] format
+        this.groups = storedGroups.map(group => ({
+            ...group,
+            projects: group.projects.map(p => 
+                typeof p === 'string' 
+                    ? { path: p, enabled: true } 
+                    : p
+            )
+        }));
     }
 
     private saveGroups(): void {
@@ -38,16 +47,23 @@ export class ProjectGroupManager {
 
     addProjectToGroup(groupId: string, projectPath: string): void {
         const group = this.groups.find(g => g.id === groupId);
-        if (group && !group.projects.includes(projectPath)) {
-            group.projects.push(projectPath);
-            this.saveGroups();
+        if (group) {
+            const projectExists = group.projects.some(p => 
+                (typeof p === 'string' ? p : p.path) === projectPath
+            );
+            if (!projectExists) {
+                group.projects.push({ path: projectPath, enabled: true });
+                this.saveGroups();
+            }
         }
     }
 
     removeProjectFromGroup(groupId: string, projectPath: string): void {
         const group = this.groups.find(g => g.id === groupId);
         if (group) {
-            group.projects = group.projects.filter(p => p !== projectPath);
+            group.projects = group.projects.filter(p => 
+                (typeof p === 'string' ? p : p.path) !== projectPath
+            );
             this.saveGroups();
         }
     }
@@ -58,5 +74,36 @@ export class ProjectGroupManager {
             group.name = newName;
             this.saveGroups();
         }
+    }
+
+    toggleProjectEnabled(groupId: string, projectPath: string): void {
+        const group = this.groups.find(g => g.id === groupId);
+        if (group) {
+            const projectIndex = group.projects.findIndex(p => 
+                (typeof p === 'string' ? p : p.path) === projectPath
+            );
+            if (projectIndex !== -1) {
+                const project = group.projects[projectIndex];
+                if (typeof project === 'string') {
+                    group.projects[projectIndex] = { path: project, enabled: false };
+                } else {
+                    project.enabled = !project.enabled;
+                }
+                this.saveGroups();
+            }
+        }
+    }
+
+    getProjectState(groupId: string, projectPath: string): boolean {
+        const group = this.groups.find(g => g.id === groupId);
+        if (group) {
+            const project = group.projects.find(p => 
+                (typeof p === 'string' ? p : p.path) === projectPath
+            );
+            if (project) {
+                return typeof project === 'string' ? true : project.enabled;
+            }
+        }
+        return true;
     }
 }

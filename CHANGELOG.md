@@ -2,6 +2,26 @@
 
 All notable changes to the "Multi Project Launcher" extension will be documented in this file.
 
+## [1.1.0] - 2025-08-21
+
+### Added
+- **Project Enable/Disable Toggle**: Selectively enable or disable projects within a group
+- Visual indicators for enabled/disabled states with checkbox-style icons
+- Project count display showing enabled vs total projects (e.g., "Frontend (2/3)")
+- Toggle command accessible via inline button and context menu
+- Support for selective project opening - only enabled projects are opened when launching a group
+
+### Improved
+- Better visual distinction between enabled and disabled projects
+- Enhanced tree view with clear status indicators
+- Improved type safety with proper TypeScript interfaces
+- Better path handling using Node.js path module
+
+### Fixed
+- Type safety improvements removing `any` types
+- Console.log statements removed from production code
+- Cross-platform path compatibility
+
 ## [1.0.1] - 2025-06-27
 
 ### Fixed
