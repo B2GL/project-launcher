@@ -84,6 +84,10 @@ Initial release of Multi Project Launcher:
 - Command palette integration
 - Intuitive tree view interface
 
+## License
+
+This project is licensed under the MIT License. See `LICENSE` for details.
+
 ---
 
 **Enjoy organizing your projects!**
