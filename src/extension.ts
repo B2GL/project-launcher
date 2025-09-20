@@ -215,6 +215,84 @@ export function activate(context: vscode.ExtensionContext) {
             projectGroupProvider.refresh();
         }),
 
+        vscode.commands.registerCommand('projectLauncher.exportSettings', async () => {
+            const groups = projectGroupManager.getGroups();
+
+            if (groups.length === 0) {
+                vscode.window.showInformationMessage('No project groups found to export.');
+                return;
+            }
+
+            const targetUri = await vscode.window.showSaveDialog({
+                filters: { 'JSON Files': ['json'] },
+                saveLabel: 'Export Project Groups'
+            });
+
+            if (!targetUri) {
+                return;
+            }
+
+            try {
+                const payload = projectGroupManager.exportData();
+                const contents = JSON.stringify(payload, null, 2);
+                await vscode.workspace.fs.writeFile(targetUri, Buffer.from(contents, 'utf8'));
+                const summary = payload.groups.length === 1
+                    ? '1 project group'
+                    : `${payload.groups.length} project groups`;
+                vscode.window.showInformationMessage(`Exported ${summary} to ${targetUri.fsPath}.`);
+            } catch (error) {
+                const message = error instanceof Error ? error.message : String(error);
+                vscode.window.showErrorMessage(`Failed to export project groups: ${message}`);
+            }
+        }),
+
+        vscode.commands.registerCommand('projectLauncher.importSettings', async () => {
+            const selection = await vscode.window.showOpenDialog({
+                canSelectMany: false,
+                filters: { 'JSON Files': ['json'] },
+                openLabel: 'Import Project Groups'
+            });
+
+            if (!selection || selection.length === 0) {
+                return;
+            }
+
+            const [sourceUri] = selection;
+
+            try {
+                const raw = await vscode.workspace.fs.readFile(sourceUri);
+                let parsed: unknown;
+
+                try {
+                    parsed = JSON.parse(Buffer.from(raw).toString('utf8'));
+                } catch (parseError) {
+                    throw new Error('Selected file is not valid JSON.');
+                }
+
+                if (projectGroupManager.getGroups().length > 0) {
+                    const confirmation = await vscode.window.showWarningMessage(
+                        'Importing will replace all existing project groups. Continue?',
+                        { modal: true },
+                        'Import'
+                    );
+
+                    if (confirmation !== 'Import') {
+                        return;
+                    }
+                }
+
+                const importedCount = projectGroupManager.importData(parsed);
+                projectGroupProvider.refresh();
+                const summary = importedCount === 1
+                    ? '1 project group'
+                    : `${importedCount} project groups`;
+                vscode.window.showInformationMessage(`Imported ${summary} from ${sourceUri.fsPath}.`);
+            } catch (error) {
+                const message = error instanceof Error ? error.message : String(error);
+                vscode.window.showErrorMessage(`Failed to import project groups: ${message}`);
+            }
+        }),
+
         treeView
     ];
 

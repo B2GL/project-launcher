@@ -53,6 +53,11 @@ A powerful VS Code extension that helps you organize and launch multiple project
 - **Delete Group**: Right-click on a group → "Delete Group"
 - **Refresh View**: Click the refresh icon in the view toolbar
 
+### Exporting and Importing Groups
+
+- **Export**: Open the Multi Project Launcher view, click the cloud-upload icon, or run `Multi Project Launcher: Export Project Launcher Settings` from the Command Palette. Choose where to save the JSON snapshot of your groups.
+- **Import**: Run `Multi Project Launcher: Import Project Launcher Settings`, select the exported JSON file, and confirm the overwrite prompt. The extension replaces your existing groups with the imported set, making IDE migrations straightforward.
+
 ## Extension Settings
 
 This extension stores your project groups in VS Code's global state, so they persist across sessions and workspaces.
@@ -67,6 +72,11 @@ This extension stores your project groups in VS Code's global state, so they per
 Please report issues on our [GitHub repository](https://github.com/your-username/project-launcher/issues).
 
 ## Release Notes
+
+### 1.2.0
+
+- Added export/import commands so you can migrate project groups between VS Code-based editors
+- Updated toolbar with cloud icons for quick backups and restores
 
 ### 1.1.0
 

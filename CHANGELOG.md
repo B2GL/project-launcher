@@ -2,6 +2,11 @@
 
 All notable changes to the "Multi Project Launcher" extension will be documented in this file.
 
+## [1.2.0] - 2025-09-20
+
+### Added
+- Export/import commands for project groups to make migrating settings across editors straightforward
+
 ## [1.1.0] - 2025-08-21
 
 ### Added
